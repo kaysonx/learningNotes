@@ -1,0 +1,79 @@
+Description: CloudFormation-v2
+Parameters:
+  ImageIdParameter:
+      Type: String
+      Default: ami-0b41c837a64388375
+      Description: AMI ID
+  KeyNameParameter:
+      Type: String
+      Default: qspeng
+      Description: KeyName
+  InstanceTypeParameter:
+      Type: String
+      Default: t2.nano
+      AllowedValues:
+        - t2.nano
+        - t2.micro
+        - m1.small
+        - m1.large
+      Description: Instance type
+  TagForNameParameter:
+      Type: String
+      Default: qspeng
+      Description: Tag value for key Name
+
+Resources: 
+  MyEC2Instance: 
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: !Ref ImageIdParameter
+      KeyName: !Sub ${KeyNameParameter}
+      InstanceType: !Ref InstanceTypeParameter
+      SecurityGroupIds: 
+        - !Ref MySecurityGroup
+      Tags:
+        -
+          Key: "Name"   
+          Value: !Join ["", [!Ref TagForNameParameter, -cf.workshop.oc-tw.net]]
+        -
+          Key: "Test"
+          Value: "TestValue"
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupName: qspeng-sg-cf
+      GroupDescription: Security Group by CF
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: SSH Port
+          FromPort: 22
+          IpProtocol: TCP
+          ToPort: 22
+        - CidrIp: 0.0.0.0/0
+          Description: HTTP Port
+          FromPort: 80
+          IpProtocol: TCP
+          ToPort: 80
+  MyRecoudSet:
+    Type: AWS::Route53::RecordSet
+    Properties: 
+      Comment: Route53 DNS for my EC2
+      HostedZoneName: workshop.oc-tw.net.
+      Name: !Sub ${TagForNameParameter}-cf.workshop.oc-tw.net
+      ResourceRecords:
+        - !GetAtt MyEC2Instance.PublicIp
+      TTL: '300'
+      Type: A
+
+
+
+
+
+
+
+
+
+
+
+
+

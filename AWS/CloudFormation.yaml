@@ -1,0 +1,32 @@
+Resources: 
+  MyEC2Instance: 
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: ami-0d35eb56c26693f15 
+      KeyName: qspeng
+      InstanceType: t2.micro
+      SecurityGroupIds: 
+        - !Ref MySecurityGroup
+      Tags:
+        -
+          Key: "Name"   
+          Value: "qspeng"
+        -
+          Key: "Test"
+          Value: "TestValue"
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupName: qspeng-sg-cf
+      GroupDescription: Security Group by CF
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: SSH Port
+          FromPort: 22
+          IpProtocol: TCP
+          ToPort: 22
+        - CidrIp: 0.0.0.0/0
+          Description: HTTP Port
+          FromPort: 80
+          IpProtocol: TCP
+          ToPort: 80

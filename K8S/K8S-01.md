@@ -1,0 +1,102 @@
+### K8S<KUBERNETES>
+容器集群管理系统：容器的部署，自动化调度，扩展机制
+
+#### 1
+ UI + CLI  --> API  -->  K8s Master --> Nodes<Image Registry>
+ 
+ master节点如何高可用？
+ 
+ 
+ Master:
+ 	1. API Server
+ 		通信中心。所有组件通过它去操作
+ 		只有它会去连etcd
+ 	2. Scheduler
+		调度器，可自定义
+ 	3. Controller Maneger
+		pod/node/service
+ 	4. etcd<单独建立集群，存放元数据>
+
+ Node:
+  	kubelet
+  		负者当前节点上pod的生命周期
+  		pod是最小调度资源
+ 	kube-proxy<负载均衡>
+ 		管理当前节点ip tables的策略
+ 		策略可选
+ 	
+ 	Docker<运行容器，可替换>
+ 	Fluentd<日志记录，可替换>
+ 
+ 	kube-dns<服务注册和发现，可替换>
+ 	
+ K8S采用声明式的接口  / 与之相对的还有命令式接口
+ 
+ 
+#### Pod
+ 	最小调度单元，可以包含多个容器
+ 	共享namespace/volumes
+ 	as code: yaml/json
+#### Labels
+	用于区分资源的key/value对
+	资源可以有多个label
+#### Selectors
+	根据label选择对应的资源
+
+Event: LT<level trigger>  ET<edge trigger>
+ 
+ 
+
+### K8S -2 
+
+kubectl get/delete/applu/create[action]	pod/rc/deployment/service [resoruce name]
+
+1. ReplicationControllers	-- 通过label来选择pod
+	确定在任意时刻都有期望数量的Pod在运行
+	能够始终保持所期望的状态
+		不只是创建N个副本的pod，会保持状态一致。
+		--业务模型支持横向扩展
+2. ReplicaSet
+	下一代的Replication Controller
+	标签选择器更自由
+	推荐通过Deployment来创建ReplicaSet
+	HPA<horizontal pod autoscal>会用到
+3. Deployment<本质上也是一组pod的组合>
+	定义Pod所期望的状态
+	
+4. Service
+	表示一组pod的逻辑上的组合 -- 通过label来选择pod
+	向外暴露pod
+	服务发现
+		DNS
+		环境变量
+	服务类型
+		ClusterIP<默认，集群内部访问>
+		NodeIP<通过访问node的IP地址来访问Service暴露出的服务>
+		LoadBalancer
+		ExternalName
+		
+	同一pod下所有container，共享volume和网络。处于同一子网中。
+	所有pod也属于同一子网中
+	k8s所有资源处于同一子网中<集群内部>，外部不可访问。
+	但是外部可以访问的是node的IP。
+	
+	如果想要通过name来访问，则需要dns，
+	所以需要集群中有kube-dns Service来解析
+	
+	kubelet创建node的时候，会注入dns server和命名空间，以及将命名空间下
+	所有service中的环境变量注入。
+	
+	基于环境变量做服务发现，依赖关系需要处理。启动容器的时候，环境变量
+	必须已经存在（key value），也即是需要注入的必须先启动。
+	
+	
+5. Namespace
+	
+ 
+ 
+ 
+ 
+ 
+ 
+  
