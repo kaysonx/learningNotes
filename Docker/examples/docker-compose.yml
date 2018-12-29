@@ -1,0 +1,44 @@
+version: '3'
+services:
+  orderservice:
+    container_name: orderservice
+    depends_on:
+      - userservice
+      - logisticservice
+      - productservice
+    image: orderservice:v1
+    ports:
+      - 8080:8080
+    networks: 
+      - onlineNetwork
+    restart: always
+    environment:
+      - TEST=true
+  userservice:
+    container_name: userservice
+    image: userservice:v1
+    ports:
+      - 8081:8081
+    networks: 
+      - onlineNetwork
+    restart: always
+  productservice:
+    container_name: productservice
+    image: productservice:v1
+    ports:
+      - 8083:8083
+    networks: 
+      - onlineNetwork
+    restart: always
+  logisticservice:
+    build: ./logistics-service/
+    ports:
+      - 8082:8082
+    networks: 
+      - onlineNetwork
+    restart: always
+networks: 
+  onlineNetwork:
+    driver: bridge
+volumes:
+  logvolume: {}

@@ -279,6 +279,49 @@ Docker 核心技术及原理： http://dockone.io/article/2941
 
 
 
+```dockerfile
+docker run -d -p 8080:8080 --name=orderservice111 orderservice:v1
+docker run -d -p 8081:8081 --name=userservice111 userservice:v1
+
+docker inspect userservice111 - 172.17.0.3
+docker inspect orderservice111 - 172.17.0.2
+
+docker exec -it userservice111 sh
+ping orderservice111 -- failed
+ping 172.17.0.2 -- ok
+
+docker network create -d bridge my_net
+docker network ls
+
+docker network connect my_net orderservice111
+docker network connect my_net userservice111
+
+docker inspect userservice111 - my_net
+docker inspect orderservice111 - my_net
+
+docker exec -it userservice111 sh
+ping orderservice111 -- ok
+ping 172.17.0.2 -- ok
+
+nslookup orderservice111
+dig +trace orderservice111
+
+uname -a -- show the current linux verison
+Cat /etc/xxx-release XX为发行版名称。如 centos-release
+
+apk add dig
+
+shared folder:
+sudo mkdir /pcshare
+sudo chmod 777 /pcshare
+sudo mount -t vboxsf Dockerfile /pcshare
+
+```
+
+
+
+
+
 
 
 
