@@ -29,7 +29,12 @@
 
 #### 2. 配置和主机清单
 
-> ![491F2116-5B7A-4527-9DDF-235911A13DDB](/Users/qspeng/Documents/ansible-config.png)
+> Changes can be made and used in a configuration file which will be searched for in the following order:
+>
+> > - `ANSIBLE_CONFIG` (environment variable if set)
+> > - `ansible.cfg` (in the current directory)
+> > - `~/.ansible.cfg` (in the home directory)
+> > - `/etc/ansible/ansible.cfg`
 >
 > 主机清单 -- 待操作的instance list
 >
@@ -78,6 +83,26 @@ Ansible-pull - pull模式 在配置的机器上从git repo里面pull
 
 Ansible-vault - 敏感信息 需要加解密运行
 
+**Ansible uses default /usr/bin/python (not the same as /usr/local/bin/python)**
+
+这是一个坑 某些module会需要python的依赖，有可能找不到
+
+可以再host后面 加上这个ansible_python_interpreter=/usr/local/bin/python
+
+或者使用venv  或者 在此python下安装依赖
+
+
+
+还有一个坑：ansible ssh登录的是读不到环境配置文件的，不管是/etc/profile
+
+还是~/.profile  ~/.bashrc ~/.zshrc
+
+如果需要环境变量 需要执行前source一下 
+
+
+
+还有ubuntu上ansible默认使用shell 不是 bash 所以没有source，要么显示指定为bash  要么使用 .
+
 
 
 #### 核心概念：
@@ -88,9 +113,41 @@ Ansible-vault - 敏感信息 需要加解密运行
 
 默认文件路径 - /etc/ansible/hosts
 
-以组作为区分
+以组作为区分 可以有父子关系
 
 可以使用python code生成动态主机清单 - ansible all -i inventory.py -m ping
+
+一些配置：
+
+>ansible_host
+>
+>要连接到的主机的名称，如果与要提供的别名不同。ansible_host=10.1.1.70
+>
+>ansible_port
+>
+>ssh端口号，如果不是22
+>
+>ansible_user
+>
+>要使用的默认ssh用户名。
+>
+>ansible_connection
+>
+>连接类型到主机。 这可以是任何ansible的连接插件的名称。 SSH协议类型是`smart` ， `ssh`或`paramiko` 。 默认是`smart`。
+>
+>ansible_ssh_pass=vagrant
+>
+>ansible_ssh_common_args = '-o StrictHostKeyChecking=no' -- 不弹出公钥确认的提示
+>
+>##### ansible的delegate_to、connection、和local_action
+>
+>Ansible 默认只会对控制机器执行操作，但如果在这个过程中需要在 Ansible 本机执行操作就需要上诉的三个模块
+>
+>例如 把目标节点获得的信息写入**执行节点**文件日志 用于调试查看。
+>
+>需要用到delegate_to, connection, local_action(写法难看，基本不用
+>
+>delegate_to和connection最后达到的目标是一致的，就是把目标机器上的｛｛　｝｝大括号标记的变量在被代理连接的节点上调用获取对应的值 然后写回执行主机。
 
 
 
@@ -179,6 +236,8 @@ ansible all -m setup - 获取系统信息
 > 14.unarchive - 解压文件
 >
 > 15.command 和 shell - shell可以有特殊字符 command不支持
+>
+> **模块都是有返回值得 可以register成变量 然后用于输出或者判断**
 
 
 
@@ -215,6 +274,8 @@ ansible -i hosts vagrant --list-hosts
 ansible-playbook -i hosts playbook-1.yml --list-hosts
 # 列出要执行的任务
 ansible-playbook -i hosts playbook-1.yml --list-tasks
+# 打印详细的日志
+ansible-playbook -i hosts playbook-1.yml -vvv
 
 ```
 
@@ -488,6 +549,30 @@ Role
 >play - task
 >
 >host
+>
+>ansible内置变量
+>
+>>1. hostvars - 用于获取指定主机的相关变量 比如ip地址 
+>>
+>>2. inventory_hostname与inventory_hostname_short - 获取正在运行task的主机名
+>>
+>>   1. 利用hostvars和inventory_hostname变量，可以输出与当前主机相关联的所有变量(包含play里面定义的)：
+>>
+>>      \- debug: var=hostvars[inventory_hostname]
+>>
+>>      与inventory_hostname相近的还有一个inventory_hostname_short，如果一台主机的inventory_hostname为server1.exmaple.com，则inventory_hostname_short的值为server1
+>>
+>>3. group_names - 配置在inventory里面的主机组名
+>>
+>>4. groups  #引用了inventory文件里所有的主机以及主机组信息
+>>
+>>5. play_hosts    #当前playbook会在哪些hosts上运行
+>>
+>>6. ansible_version    #当前ansible的版本
+>>
+>>7. inventory_dir    #主机清单所在目录
+>>
+>>8. inventory_file    #主机清单文件
 
 Facts
 
