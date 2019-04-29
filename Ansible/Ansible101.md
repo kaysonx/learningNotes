@@ -2,23 +2,25 @@
 
 >通用自动化工具 用于配置管理 和 工作流程自动化
 >
+>可以实现批量系统配置、批量程序部署、批量运行命令
+>
 >使用SSH + Python
 >
 >配置采用yml文件
 >
 >自动化
 >
-> - 部署应用
-> - 管理配置
-> - 持续交付
-> - 云服务管理
-> - 网络设备管理
+>- 部署应用
+>- 管理配置
+>- 持续交付
+>- 云服务管理
+>- 网络设备管理
 
 >Ansible 项目
 >
->* Ansible Galaxy
->* Ansible Container
->* Ansible Tower
+>* Ansible Galaxy - Role管理 类似于NPM PIP
+>* Ansible Container - 容器管理
+>* Ansible Tower - 可视化UI
 
 >推荐使用对应instance type上的包管理工具安装
 >
@@ -102,6 +104,10 @@ Ansible-vault - 敏感信息 需要加解密运行
 
 
 还有ubuntu上ansible默认使用shell 不是 bash 所以没有source，要么显示指定为bash  要么使用 .
+
+
+
+![Execute-flow](ansible.jpg)
 
 
 
@@ -329,7 +335,7 @@ Role
 >
 >vars_files tasks and handlers.
 >
->按Role分组的内容允许与其他用户共享.
+>Role是一种封装 类似于函数，可以复用.
 >
 >这里的分组 指的是 一个Role其实是同一类型的任务的分组 每个role下面就是上面所述的文件组织
 
